@@ -29,14 +29,15 @@ const renderWaypoint = (waypointList, waypoint) => {
   const editWaypointForm = editWaypointComponent.getElement().querySelector(`.event--edit`);
 
   const replaceWaypointToForm = () => {
-    waypointList.replaceChild(waypointComponent.getElement(), editWaypointComponent.getElement());
-  };
-
-  const replaceFormToWaypoint = () => {
     waypointList.replaceChild(editWaypointComponent.getElement(), waypointComponent.getElement());
   };
 
-  const onSubmit = () => {
+  const replaceFormToWaypoint = () => {
+    waypointList.replaceChild(waypointComponent.getElement(), editWaypointComponent.getElement());
+  };
+
+  const onSubmit = (evt) => {
+    evt.preventDefault();
     replaceFormToWaypoint();
 
     editWaypointForm.removeEventListener(`submit`, onSubmit);
