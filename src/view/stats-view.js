@@ -1,4 +1,6 @@
-export const statsView = (data) => {
+import {createElement} from "../utils";
+
+const createStatsTemplate = (data) => {
   return `<section class="trip-main__trip-info  trip-info">
           <div class="trip-info__main">
             <h1 class="trip-info__title">Amsterdam &mdash; Chamonix &mdash; Geneva</h1>
@@ -11,3 +13,25 @@ export const statsView = (data) => {
           </p>
         </section>`;
 };
+
+export default class Stats {
+  constructor() {
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createStatsTemplate();
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}

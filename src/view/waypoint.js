@@ -1,4 +1,6 @@
-export const waypointView = (data) => {
+import {createElement} from "../utils";
+
+const createWaypointTemplate = (waypoint) => {
   return `<li class="trip-events__item">
             <div class="event">
               <time class="event__date" datetime="2019-03-18">MAR 18</time>
@@ -37,3 +39,26 @@ export const waypointView = (data) => {
             </div>
           </li>`;
 };
+
+export default class Waypoint {
+  constructor(waypoint) {
+    this._waypoint = waypoint;
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createWaypointTemplate(this._waypoint);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
