@@ -10,7 +10,7 @@ import WaypointView from "./view/waypoint";
 import {generateWaypoint} from "./mock/waypoint";
 import {POSITIONS, render, renderTemplate} from "./utils";
 
-const WAYPOINTS_COUNT = 10;
+const WAYPOINTS_COUNT = 20;
 const waypoints = new Array(WAYPOINTS_COUNT).fill().map(() => generateWaypoint());
 
 const tripMain = document.querySelector(`.trip-main`);
@@ -26,6 +26,9 @@ const renderWaypoint = (waypointList, waypoint) => {
   const waypointComponent = new WaypointView(waypoint);
   const editWaypointComponent = new EditWaypointView(waypoint);
 
+  const openRollupButton = waypointComponent.getElement().querySelector(`.event__rollup-btn`);
+  const closeRollupButton = editWaypointComponent.getElement().querySelector(`.event__rollup-btn`);
+
   const editWaypointForm = editWaypointComponent.getElement().querySelector(`.event--edit`);
 
   const replaceWaypointToForm = () => {
@@ -36,19 +39,41 @@ const renderWaypoint = (waypointList, waypoint) => {
     waypointList.replaceChild(waypointComponent.getElement(), editWaypointComponent.getElement());
   };
 
-  const onSubmit = (evt) => {
-    evt.preventDefault();
-    replaceFormToWaypoint();
+  const openEdit = () => {
+    replaceWaypointToForm();
 
-    editWaypointForm.removeEventListener(`submit`, onSubmit);
+    editWaypointForm.addEventListener(`submit`, closeOnSubmit);
+    document.addEventListener(`keydown`, closeOnKeyDown);
+
+    closeRollupButton.removeEventListener(`click`, openEdit);
+    closeRollupButton.addEventListener(`click`, closeEdit);
   };
 
-  waypointComponent.getElement().querySelector(`.event__rollup-btn`)
-    .addEventListener(`click`, () => {
-      replaceWaypointToForm();
+  const closeEdit = () => {
+    replaceFormToWaypoint();
 
-      editWaypointForm.addEventListener(`submit`, onSubmit);
-    });
+    editWaypointForm.removeEventListener(`submit`, closeOnSubmit);
+    document.removeEventListener(`keydown`, closeOnKeyDown);
+
+    openRollupButton.removeEventListener(`click`, closeEdit);
+    openRollupButton.addEventListener(`click`, openEdit);
+  };
+
+  const closeOnSubmit = (evt) => {
+    evt.preventDefault();
+
+    closeEdit();
+  };
+
+  const closeOnKeyDown = (evt) => {
+    if (evt.key === `Esc` || evt.key === `Escape`) {
+      closeEdit();
+    }
+  };
+
+  openRollupButton.addEventListener(`click`, () => {
+    openEdit();
+  });
 
   render(waypointList, waypointComponent.getElement(), POSITIONS.BEFOREEND);
 };
