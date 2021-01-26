@@ -1,4 +1,6 @@
-export const addWaypointView = (data) => {
+import {createElement} from "../utils";
+
+const createAddWaypointView = () => {
   return `<li class="trip-events__item">
             <form class="event event--edit" action="#" method="post">
               <header class="event__header">
@@ -167,3 +169,26 @@ export const addWaypointView = (data) => {
             </form>
           </li>`;
 };
+
+
+export default class AddWaypoint {
+  constructor() {
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createAddWaypointView();
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
