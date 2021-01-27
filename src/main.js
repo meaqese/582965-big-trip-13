@@ -2,13 +2,14 @@ import StatsView from "./view/stats-view";
 import MenuView from "./view/menu-view";
 import FiltersView from "./view/filters-view";
 import SortView from "./view/sort-view";
-import WaypointListView from "./view/waypoint-list";
+import WaypointListView from "./view/waypoint-list-view";
 
 import EditWaypointView from "./view/edit-waypoint-view";
-import WaypointView from "./view/waypoint";
+import WaypointView from "./view/waypoint-view";
 
 import {generateWaypoint} from "./mock/waypoint";
-import {POSITIONS, render, renderTemplate} from "./utils";
+import {POSITIONS, render, renderTemplate, replace} from "./utils/render";
+import AbstractView from "./view/abstract-view";
 
 const WAYPOINTS_COUNT = 20;
 const waypoints = new Array(WAYPOINTS_COUNT).fill().map(() => generateWaypoint());
@@ -23,30 +24,23 @@ render(switchTrip, new MenuView().getElement(), POSITIONS.AFTER);
 render(filterEvents, new FiltersView().getElement(), POSITIONS.AFTER);
 
 const renderWaypoint = (waypointList, waypoint) => {
+  if (waypointList instanceof AbstractView) {
+    waypointList = waypointList.getElement();
+  }
+
   const waypointComponent = new WaypointView(waypoint);
   const editWaypointComponent = new EditWaypointView(waypoint);
 
-  const openRollupButton = waypointComponent.getElement().querySelector(`.event__rollup-btn`);
   const closeRollupButton = editWaypointComponent.getElement().querySelector(`.event__rollup-btn`);
 
   const editWaypointForm = editWaypointComponent.getElement().querySelector(`.event--edit`);
 
   const replaceWaypointToForm = () => {
-    waypointList.replaceChild(editWaypointComponent.getElement(), waypointComponent.getElement());
+    replace(editWaypointComponent, waypointComponent);
   };
 
   const replaceFormToWaypoint = () => {
-    waypointList.replaceChild(waypointComponent.getElement(), editWaypointComponent.getElement());
-  };
-
-  const openEdit = () => {
-    replaceWaypointToForm();
-
-    editWaypointForm.addEventListener(`submit`, closeOnSubmit);
-    document.addEventListener(`keydown`, closeOnKeyDown);
-
-    closeRollupButton.removeEventListener(`click`, openEdit);
-    closeRollupButton.addEventListener(`click`, closeEdit);
+    replace(waypointComponent, editWaypointComponent);
   };
 
   const closeEdit = () => {
@@ -54,9 +48,7 @@ const renderWaypoint = (waypointList, waypoint) => {
 
     editWaypointForm.removeEventListener(`submit`, closeOnSubmit);
     document.removeEventListener(`keydown`, closeOnKeyDown);
-
-    openRollupButton.removeEventListener(`click`, closeEdit);
-    openRollupButton.addEventListener(`click`, openEdit);
+    closeRollupButton.removeEventListener(`click`, closeEdit);
   };
 
   const closeOnSubmit = (evt) => {
@@ -71,22 +63,29 @@ const renderWaypoint = (waypointList, waypoint) => {
     }
   };
 
-  openRollupButton.addEventListener(`click`, () => {
-    openEdit();
+  waypointComponent.setEditClickHandler(() => {
+    replaceWaypointToForm();
+
+    editWaypointForm.addEventListener(`submit`, closeOnSubmit);
+    document.addEventListener(`keydown`, closeOnKeyDown);
+
+    editWaypointComponent.setCloseClickHandler(() => {
+      closeEdit();
+    });
   });
 
-  render(waypointList, waypointComponent.getElement(), POSITIONS.BEFOREEND);
+  render(waypointList, waypointComponent, POSITIONS.BEFOREEND);
 };
 
 const renderEventsBoard = (eventsListContainer, waypointsList) => {
   const waypointsListComponent = new WaypointListView();
 
-  render(eventsListContainer, new SortView().getElement(), POSITIONS.BEFOREEND);
+  render(eventsListContainer, new SortView(), POSITIONS.BEFOREEND);
 
   if (waypointsList.length > 0) {
-    render(eventsListContainer, waypointsListComponent.getElement(), POSITIONS.BEFOREEND);
+    render(eventsListContainer, waypointsListComponent, POSITIONS.BEFOREEND);
     for (const waypoint of waypointsList) {
-      renderWaypoint(waypointsListComponent.getElement(), waypoint);
+      renderWaypoint(waypointsListComponent, waypoint);
     }
   } else {
     renderTemplate(eventsListContainer, `<p class="trip-events__msg">Click New Event to create your first point</p>`, POSITIONS.BEFOREEND);

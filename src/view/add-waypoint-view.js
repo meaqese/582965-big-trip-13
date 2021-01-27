@@ -1,4 +1,4 @@
-import {createElement} from "../utils";
+import AbstractView from "./abstract-view";
 
 const createAddWaypointView = () => {
   return `<li class="trip-events__item">
@@ -171,24 +171,8 @@ const createAddWaypointView = () => {
 };
 
 
-export default class AddWaypoint {
-  constructor() {
-    this._element = null;
-  }
-
+export default class AddWaypoint extends AbstractView {
   getTemplate() {
     return createAddWaypointView();
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }

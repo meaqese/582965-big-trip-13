@@ -1,4 +1,4 @@
-import {createElement} from "../utils";
+import AbstractView from "./abstract-view";
 
 const createEditWaypointTemplate = (waypoint) => {
   return `<li class="trip-events__item">
@@ -164,25 +164,25 @@ const createEditWaypointTemplate = (waypoint) => {
 };
 
 
-export default class EditWaypoint {
+export default class EditWaypoint extends AbstractView {
   constructor(waypoint) {
+    super();
+
     this._waypoint = waypoint;
-    this._element = null;
+
+    this._closeClickHandler = this._closeClickHandler.bind(this);
   }
 
   getTemplate() {
     return createEditWaypointTemplate(this._waypoint);
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
+  _closeClickHandler() {
+    this._callback.close();
   }
 
-  removeElement() {
-    this._element = null;
+  setCloseClickHandler(callback) {
+    this._callback.close = callback;
+    this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._closeClickHandler);
   }
 }
