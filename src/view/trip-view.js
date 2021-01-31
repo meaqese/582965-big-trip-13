@@ -4,7 +4,7 @@ const createWaypointListTemplate = () => {
   return `<ul class="trip-events__list"></ul>`;
 };
 
-export default class WaypointListView extends AbstractView {
+export default class Trip extends AbstractView {
   getTemplate() {
     return createWaypointListTemplate();
   }
