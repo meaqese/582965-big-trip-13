@@ -4,6 +4,8 @@ import NoWaypointView from "../view/no-waypoint-view";
 import {POSITIONS, render} from "../utils/render";
 import WaypointPresenter from "../presenter/waypoint-presenter";
 import {updateItem} from "../utils/common";
+import {SortType} from "../const";
+import {sortByPrice, sortByTime} from "../utils/waypoint";
 
 
 export default class Trip {
@@ -11,6 +13,7 @@ export default class Trip {
     this._tripContainer = tripContainer;
 
     this._waypointPresenter = {};
+    this._currentSortType = SortType.DAY;
 
     this._tripComponent = new TripView();
     this._sortComponent = new SortView();
@@ -18,12 +21,19 @@ export default class Trip {
 
     this._handleWaypointChange = this._handleWaypointChange.bind(this);
     this._handleModeChange = this._handleModeChange.bind(this);
+    this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
   }
 
   init(waypoints) {
     this._waypoints = waypoints.slice();
+    this._sourceWaypoints = waypoints.slice();
 
     this._renderTrip();
+  }
+
+  _clearWaypointList() {
+    Object.values(this._waypointPresenter).forEach((presenter) => presenter.destroy());
+    this._waypointPresenter = {};
   }
 
   _handleWaypointChange(updatedWaypoint) {
@@ -35,8 +45,34 @@ export default class Trip {
     Object.values(this._waypointPresenter).forEach((presenter) => presenter.resetView());
   }
 
+  _sortWaypoints(sortType) {
+    switch (sortType) {
+      case SortType.PRICE:
+        this._waypoints.sort(sortByPrice);
+        break;
+      case SortType.TIME:
+        this._waypoints.sort(sortByTime);
+        break;
+      default:
+        this._waypoints = this._sourceWaypoints.slice();
+        break;
+    }
+
+    this._currentSortType = sortType;
+  }
+
+  _handleSortTypeChange(sortType) {
+    if (this._currentSortType === sortType) {
+      return;
+    }
+    this._sortWaypoints(sortType);
+    this._clearWaypointList();
+    this._renderWaypoints();
+  }
+
   _renderSort() {
     render(this._tripContainer, this._sortComponent, POSITIONS.BEFOREEND);
+    this._sortComponent.setSortTypeChangeHandler(this._handleSortTypeChange);
   }
 
   _renderWaypoint(waypoint) {

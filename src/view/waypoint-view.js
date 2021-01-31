@@ -1,32 +1,58 @@
 import AbstractView from "./abstract-view";
+import dayjs from "dayjs";
+import {getType} from "../utils/waypoint";
 
-const createWaypointTemplate = () => {
+const createWaypointTemplate = (waypoint) => {
+  const {type, destination, offers, price} = waypoint;
+  const dateFrom = dayjs(waypoint.dateFrom);
+  const dateTo = dayjs(waypoint.dateTo);
+
+  const getOffers = () => {
+    return offers.map((offer) => `<li class="event__offer">
+                  <span class="event__offer-title">${offer.title}</span>
+                  &plus;&euro;&nbsp;
+                  <span class="event__offer-price">${offer.price}</span>
+                </li>`).join(``);
+  };
+  const getDateString = () => {
+    const month = dateFrom.format(`MMM`);
+    const day = dateFrom.format(`D`);
+
+    return `${month} ${day}`;
+  };
+  const getInterval = () => {
+    const interval = dayjs(dateFrom.diff(dateTo));
+
+    if (interval.hour() < 1) {
+      return interval.format(`mm[M]`);
+    } else if (interval.hour() < 24) {
+      return interval.format(`HH[H] mm[M]`);
+    } else {
+      return interval.format(`DD[D] HH[H] mm[M]`);
+    }
+  };
+
+
   return `<li class="trip-events__item">
             <div class="event">
-              <time class="event__date" datetime="2019-03-18">MAR 18</time>
+              <time class="event__date" datetime="${dateFrom.format(`YY-MM-DD`)}">${getDateString(dateFrom)}</time>
               <div class="event__type">
-                <img class="event__type-icon" width="42" height="42" src="img/icons/taxi.png" alt="Event type icon">
+                <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
               </div>
-              <h3 class="event__title">Taxi Amsterdam</h3>
+              <h3 class="event__title">${getType(type)} ${destination.name}</h3>
               <div class="event__schedule">
                 <p class="event__time">
-                  <time class="event__start-time" datetime="2019-03-18T10:30">10:30</time>
+                  <time class="event__start-time" datetime="${dateFrom.format()}">${dateFrom.format(`HH:mm`)}</time>
                   &mdash;
-                  <time class="event__end-time" datetime="2019-03-18T11:00">11:00</time>
+                  <time class="event__end-time" datetime="${dateTo.format()}">${dateTo.format(`HH:mm`)}</time>
                 </p>
-                <p class="event__duration">30M</p>
+                <p class="event__duration">${getInterval()}</p>
               </div>
               <p class="event__price">
-                &euro;&nbsp;<span class="event__price-value">20</span>
+                &euro;&nbsp;<span class="event__price-value">${price}</span>
               </p>
               <h4 class="visually-hidden">Offers:</h4>
-              <ul class="event__selected-offers">
-                <li class="event__offer">
-                  <span class="event__offer-title">Order Uber</span>
-                  &plus;&euro;&nbsp;
-                  <span class="event__offer-price">20</span>
-                </li>
-              </ul>
+              <ul class="event__selected-offers">${getOffers()}</ul>
               <button class="event__favorite-btn event__favorite-btn--active" type="button">
                 <span class="visually-hidden">Add to favorite</span>
                 <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
