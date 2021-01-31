@@ -1,6 +1,6 @@
 import AbstractView from "./abstract-view";
 
-const createWaypointTemplate = (waypoint) => {
+const createWaypointTemplate = () => {
   return `<li class="trip-events__item">
             <div class="event">
               <time class="event__date" datetime="2019-03-18">MAR 18</time>
@@ -47,6 +47,7 @@ export default class WaypointView extends AbstractView {
     this._waypoint = waypoint;
 
     this._editClickHandler = this._editClickHandler.bind(this);
+    this._favoriteClickHandler = this._favoriteClickHandler.bind(this);
   }
 
   getTemplate() {
@@ -60,5 +61,14 @@ export default class WaypointView extends AbstractView {
   setEditClickHandler(callback) {
     this._callback.editClick = callback;
     this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._editClickHandler);
+  }
+
+  _favoriteClickHandler() {
+    this._callback.favoriteClick();
+  }
+
+  setFavoriteClickHandler(callback) {
+    this._callback.favoriteClick = callback;
+    this.getElement().querySelector(`.event__favorite-btn`).addEventListener(`click`, this._favoriteClickHandler);
   }
 }

@@ -34,9 +34,13 @@ const generateOffers = () => {
   return generateDescription(1, 5).map((value) => ({title: value, price: getRandomInteger(20, 200)}));
 };
 
+const generateFavorite = () => Boolean(getRandomInteger());
+
+const generateId = () => Date.now() + parseInt(Math.random() * 10000, 10);
 
 export const generateWaypoint = () => {
   return {
+    id: generateId(),
     type: generateType(),
     destination: {
       name: generateDestination(),
@@ -44,5 +48,6 @@ export const generateWaypoint = () => {
       pictures: generatePhotos()
     },
     offers: generateOffers(),
+    isFavorite: generateFavorite()
   };
 };
