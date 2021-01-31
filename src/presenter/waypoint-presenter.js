@@ -55,6 +55,11 @@ export default class Waypoint {
     remove(prevEditWaypointComponent);
   }
 
+  destroy() {
+    remove(this._waypointComponent);
+    remove(this._editWaypointComponent);
+  }
+
   resetView() {
     if (this._mode !== Mode.DEFAULT) {
       this._replaceFormToWaypoint();

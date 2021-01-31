@@ -1,3 +1,5 @@
+import dayjs from "dayjs";
+
 const getRandomInteger = (a = 0, b = 1) => {
   const lower = Math.ceil(Math.min(a, b));
   const upper = Math.floor(Math.max(a, b));
@@ -31,17 +33,41 @@ const generatePhotos = () => {
 };
 
 const generateOffers = () => {
-  return generateDescription(1, 5).map((value) => ({title: value, price: getRandomInteger(20, 200)}));
+  const count = getRandomInteger(0, 5);
+  const offers = [
+    {title: `Choose meal`, price: 180},
+    {title: `Order Taxi`, price: 5},
+    {title: `Upgrade to comfort class`, price: 50},
+    {title: `Upgrade to luxe class`, price: 100},
+    {title: `Order Helicopter`, price: 150}
+  ];
+
+  return new Array(count).fill().map((value, index) => offers[index]);
 };
 
 const generateFavorite = () => Boolean(getRandomInteger());
 
 const generateId = () => Date.now() + parseInt(Math.random() * 10000, 10);
 
+const generatePrice = () => getRandomInteger(40, 300);
+
+const generateDates = () => {
+  const dateFrom = dayjs().add(getRandomInteger(1, 30), `day`);
+  const dateTo = dateFrom.add(getRandomInteger(1, 4), `hour`).add(getRandomInteger(10, 59), `minute`);
+
+
+  return [dateFrom.format(), dateTo.format()];
+};
+
 export const generateWaypoint = () => {
+  const [dateFrom, dateTo] = generateDates();
+
   return {
     id: generateId(),
+    dateFrom,
+    dateTo,
     type: generateType(),
+    price: generatePrice(),
     destination: {
       name: generateDestination(),
       description: generateDescription(1, 5),
