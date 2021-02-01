@@ -36,7 +36,6 @@ export default class Waypoint {
     this._closeRollupButton = this._editWaypointComponent.getElement().querySelector(`.event__rollup-btn`);
     this._editWaypointForm = this._editWaypointComponent.getElement().querySelector(`.event--edit`);
     this._waypointComponent.setEditClickHandler(this._handleEditClick);
-
     this._waypointComponent.setFavoriteClickHandler(this._handleFavoriteClick);
 
     if (prevWaypointComponent === null || prevEditWaypointComponent === null) {
@@ -78,9 +77,9 @@ export default class Waypoint {
   }
 
   _closeEdit() {
-    this._replaceFormToWaypoint();
-
     this._editWaypointComponent.reset(this._waypoint);
+
+    this._replaceFormToWaypoint();
 
     this._editWaypointForm.removeEventListener(`submit`, this._closeOnSubmit);
     document.removeEventListener(`keydown`, this._closeOnKeydown);
