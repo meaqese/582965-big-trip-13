@@ -1,9 +1,51 @@
-import AbstractView from "./abstract-view";
 import dayjs from "dayjs";
 import {getType} from "../utils/waypoint";
+import SmartView from "./smart-view";
+
+const createEditWaypointOfferTemplate = (offer) => {
+  const {title, price} = offer;
+  const titleAsId = title.split(` `).join(`-`);
+  return `<div class="event__offer-selector">
+            <input class="event__offer-checkbox  visually-hidden" id="event-offer-${titleAsId}-1" type="checkbox" name="event-offer-${titleAsId}">
+            <label class="event__offer-label" for="event-offer-${titleAsId}-1">
+              <span class="event__offer-title">${title}</span>
+              &plus;&euro;&nbsp;
+              <span class="event__offer-price">${price}</span>
+            </label>
+          </div>`;
+};
+
+const createEditWaypointOffersTemplate = (offers) => {
+  const offersList = offers.map((offer) => createEditWaypointOfferTemplate(offer)).join(``);
+  return offers.length > 0 ? `<section class="event__section  event__section--offers">
+                                <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+                                  <div class="event__available-offers">
+                                    ${offersList}
+                                  </div>
+                              </section>` : ``;
+};
+
+const createEditWaypointPicturesTemplate = (pictures) => {
+  const picturesTemplates = pictures.map((picture) => `<img class="event__photo" src="${picture.src}" alt="${picture.description}">`).join(``);
+  return picturesTemplates.length > 0 ? `<div class="event__photos-container">
+            <div class="event__photos-tape">
+              ${picturesTemplates}
+            </div>
+          </div>` : ``;
+};
+
+const createEditWaypointDescriptionTemplate = (destination) => {
+  const {description, pictures} = destination;
+  return `<section class="event__section  event__section--destination">
+            <h3 class="event__section-title  event__section-title--destination">Destination</h3>
+            <p class="event__destination-description">${description}</p>
+
+            ${createEditWaypointPicturesTemplate(pictures)}
+          </section>`;
+};
 
 const createEditWaypointTemplate = (waypoint) => {
-  const {type, destination, price} = waypoint;
+  const {type, destination, offers, price} = waypoint;
   const dateFromFormat = dayjs(waypoint.dateFrom).format(`DD/MM/YY HH:mm`);
   const dateToFormat = dayjs(waypoint.dateTo).format(`DD/MM/YY HH:mm`);
 
@@ -110,78 +152,55 @@ const createEditWaypointTemplate = (waypoint) => {
                 </button>
               </header>
               <section class="event__details">
-                <section class="event__section  event__section--offers">
-                  <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+                ${createEditWaypointOffersTemplate(offers)}
 
-                  <div class="event__available-offers">
-                    <div class="event__offer-selector">
-                      <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-1" type="checkbox" name="event-offer-luggage" checked>
-                      <label class="event__offer-label" for="event-offer-luggage-1">
-                        <span class="event__offer-title">Add luggage</span>
-                        &plus;&euro;&nbsp;
-                        <span class="event__offer-price">50</span>
-                      </label>
-                    </div>
-
-                    <div class="event__offer-selector">
-                      <input class="event__offer-checkbox  visually-hidden" id="event-offer-comfort-1" type="checkbox" name="event-offer-comfort" checked>
-                      <label class="event__offer-label" for="event-offer-comfort-1">
-                        <span class="event__offer-title">Switch to comfort</span>
-                        &plus;&euro;&nbsp;
-                        <span class="event__offer-price">80</span>
-                      </label>
-                    </div>
-
-                    <div class="event__offer-selector">
-                      <input class="event__offer-checkbox  visually-hidden" id="event-offer-meal-1" type="checkbox" name="event-offer-meal">
-                      <label class="event__offer-label" for="event-offer-meal-1">
-                        <span class="event__offer-title">Add meal</span>
-                        &plus;&euro;&nbsp;
-                        <span class="event__offer-price">15</span>
-                      </label>
-                    </div>
-
-                    <div class="event__offer-selector">
-                      <input class="event__offer-checkbox  visually-hidden" id="event-offer-seats-1" type="checkbox" name="event-offer-seats">
-                      <label class="event__offer-label" for="event-offer-seats-1">
-                        <span class="event__offer-title">Choose seats</span>
-                        &plus;&euro;&nbsp;
-                        <span class="event__offer-price">5</span>
-                      </label>
-                    </div>
-
-                    <div class="event__offer-selector">
-                      <input class="event__offer-checkbox  visually-hidden" id="event-offer-train-1" type="checkbox" name="event-offer-train">
-                      <label class="event__offer-label" for="event-offer-train-1">
-                        <span class="event__offer-title">Travel by train</span>
-                        &plus;&euro;&nbsp;
-                        <span class="event__offer-price">40</span>
-                      </label>
-                    </div>
-                  </div>
-                </section>
-
-                <section class="event__section  event__section--destination">
-                  <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-                  <p class="event__destination-description">${destination.description}</p>
-                </section>
+                ${createEditWaypointDescriptionTemplate(destination)}
               </section>
             </form>
           </li>`;
 };
 
 
-export default class EditWaypoint extends AbstractView {
+export default class EditWaypoint extends SmartView {
   constructor(waypoint) {
     super();
 
     this._waypoint = waypoint;
 
     this._closeClickHandler = this._closeClickHandler.bind(this);
+    this._changeTypeHandler = this._changeTypeHandler.bind(this);
+    this._changeDestinationHandler = this._changeDestinationHandler.bind(this);
+
+    this._setInnerHandlers();
   }
 
   getTemplate() {
     return createEditWaypointTemplate(this._waypoint);
+  }
+
+  reset(waypoint) {
+    this.updateData(waypoint);
+  }
+
+  _setInnerHandlers() {
+    this.getElement().querySelector(`.event__type-group`).addEventListener(`click`, this._changeTypeHandler);
+    this.getElement().querySelector(`.event__input--destination`).addEventListener(`input`, this._changeDestinationHandler);
+  }
+
+  _restoreHandlers() {
+    this._setInnerHandlers();
+    this.setCloseClickHandler(this._callback.close);
+  }
+
+  _changeDestinationHandler(evt) {
+    this.updateData({destination: Object.assign({}, this._waypoint.destination, {name: evt.target.value})}, true);
+  }
+
+  _changeTypeHandler(evt) {
+    if (evt.target.tagName !== `LABEL`) {
+      return;
+    }
+    this.updateData({type: evt.target.textContent.toLowerCase()});
   }
 
   _closeClickHandler() {

@@ -80,6 +80,8 @@ export default class Waypoint {
   _closeEdit() {
     this._replaceFormToWaypoint();
 
+    this._editWaypointComponent.reset(this._waypoint);
+
     this._editWaypointForm.removeEventListener(`submit`, this._closeOnSubmit);
     document.removeEventListener(`keydown`, this._closeOnKeydown);
     this._closeRollupButton.removeEventListener(`click`, this._closeEdit);
