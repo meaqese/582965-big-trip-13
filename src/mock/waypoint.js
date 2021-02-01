@@ -29,7 +29,7 @@ const generateDescription = (min, max) => {
 };
 
 const generatePhotos = () => {
-  return generateDescription(1, 4).map((value) => ({src: `http://picsum.photos/248/152?r=${getRandomInteger(1, 100)}`, description: value}));
+  return generateDescription(0, 4).map((value) => ({src: `http://picsum.photos/248/152?r=${getRandomInteger(1, 100)}`, description: value}));
 };
 
 const generateOffers = () => {
