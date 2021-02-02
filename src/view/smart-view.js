@@ -2,7 +2,7 @@ import AbstractView from "./abstract-view";
 
 export default class SmartView extends AbstractView {
   updateData(update, updateData) {
-    if (!update) {
+    if (!update || update === this._waypoint) {
       return;
     }
 

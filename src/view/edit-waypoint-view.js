@@ -1,6 +1,9 @@
 import dayjs from "dayjs";
 import {getType} from "../utils/waypoint";
 import SmartView from "./smart-view";
+import flatpickr from "flatpickr";
+
+import "../../node_modules/flatpickr/dist/flatpickr.min.css";
 
 const createEditWaypointOfferTemplate = (offer) => {
   const {title, price} = offer;
@@ -166,12 +169,18 @@ export default class EditWaypoint extends SmartView {
     super();
 
     this._waypoint = waypoint;
+    this._datepickerFrom = null;
+    this._datepickerTo = null;
 
     this._closeClickHandler = this._closeClickHandler.bind(this);
     this._changeTypeHandler = this._changeTypeHandler.bind(this);
     this._changeDestinationHandler = this._changeDestinationHandler.bind(this);
 
+    this._dateFromChangeHandler = this._dateFromChangeHandler.bind(this);
+    this._dateToChangeHandler = this._dateToChangeHandler.bind(this);
+
     this._setInnerHandlers();
+    this._setDatePickers();
   }
 
   getTemplate() {
@@ -182,6 +191,35 @@ export default class EditWaypoint extends SmartView {
     this.updateData(waypoint);
   }
 
+  _setDatePickers() {
+    if (this._datepickerFrom || this._datepickerTo) {
+      this._datepickerFrom.destroy();
+      this._datepickerFrom = null;
+
+      this._datepickerTo.destroy();
+      this._datepickerTo = null;
+    }
+
+    if (this._waypoint.dateFrom && this._waypoint.dateTo) {
+      this._datepickerFrom = flatpickr(
+          this.getElement().querySelector(`input[name=event-start-time]`),
+          {enableTime: true, dateFormat: `d/m/Y H:i`, defaultDate: this._waypoint.dateFrom, onChange: this._dateFromChangeHandler}
+      );
+      this._datepickerTo = flatpickr(
+          this.getElement().querySelector(`input[name=event-end-time]`),
+          {enableTime: true, dateFormat: `d/m/Y H:i`, defaultDate: this._waypoint.dateTo, onChange: this._dateToChangeHandler}
+      );
+    }
+  }
+
+  _dateFromChangeHandler([userData]) {
+    this.updateData({dateFrom: dayjs(userData).toDate()});
+  }
+
+  _dateToChangeHandler([userData]) {
+    this.updateData({dateTo: dayjs(userData).toDate()});
+  }
+
   _setInnerHandlers() {
     this.getElement().querySelector(`.event__type-group`).addEventListener(`click`, this._changeTypeHandler);
     this.getElement().querySelector(`.event__input--destination`).addEventListener(`input`, this._changeDestinationHandler);
@@ -189,6 +227,7 @@ export default class EditWaypoint extends SmartView {
 
   _restoreHandlers() {
     this._setInnerHandlers();
+    this._setDatePickers();
     this.setCloseClickHandler(this._callback.close);
   }
 
