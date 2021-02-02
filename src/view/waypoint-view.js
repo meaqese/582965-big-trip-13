@@ -83,7 +83,6 @@ export default class WaypointView extends AbstractView {
   _editClickHandler() {
     this._callback.editClick();
   }
-
   setEditClickHandler(callback) {
     this._callback.editClick = callback;
     this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._editClickHandler);
@@ -92,7 +91,6 @@ export default class WaypointView extends AbstractView {
   _favoriteClickHandler() {
     this._callback.favoriteClick();
   }
-
   setFavoriteClickHandler(callback) {
     this._callback.favoriteClick = callback;
     this.getElement().querySelector(`.event__favorite-btn`).addEventListener(`click`, this._favoriteClickHandler);
