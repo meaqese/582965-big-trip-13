@@ -1,6 +1,8 @@
 import WaypointView from "../view/waypoint-view";
 import EditWaypointView from "../view/edit-waypoint-view";
 import {POSITIONS, render, replace, remove} from "../utils/render";
+import {UserAction, UpdateType} from "../const";
+
 
 const Mode = {
   DEFAULT: `DEFAULT`,
@@ -18,9 +20,9 @@ export default class Waypoint {
 
     this._handleEditClick = this._handleEditClick.bind(this);
     this._closeOnKeydown = this._closeOnKeydown.bind(this);
-    this._closeOnSubmit = this._closeOnSubmit.bind(this);
-
+    this._handleFormSubmit = this._handleFormSubmit.bind(this);
     this._handleFavoriteClick = this._handleFavoriteClick.bind(this);
+    this._handleDeleteClick = this._handleDeleteClick.bind(this);
   }
 
   init(waypoint) {
@@ -34,9 +36,10 @@ export default class Waypoint {
     this._editWaypointComponent = new EditWaypointView(waypoint);
 
     this._closeRollupButton = this._editWaypointComponent.getElement().querySelector(`.event__rollup-btn`);
-    this._editWaypointForm = this._editWaypointComponent.getElement().querySelector(`.event--edit`);
     this._waypointComponent.setEditClickHandler(this._handleEditClick);
     this._waypointComponent.setFavoriteClickHandler(this._handleFavoriteClick);
+    this._editWaypointComponent.setFormSubmitHandler(this._handleFormSubmit);
+    this._editWaypointComponent.setDeleteClickHandler(this._handleDeleteClick);
 
     if (prevWaypointComponent === null || prevEditWaypointComponent === null) {
       render(this._tripList, this._waypointComponent, POSITIONS.BEFOREEND);
@@ -81,15 +84,8 @@ export default class Waypoint {
 
     this._replaceFormToWaypoint();
 
-    this._editWaypointForm.removeEventListener(`submit`, this._closeOnSubmit);
     document.removeEventListener(`keydown`, this._closeOnKeydown);
     this._closeRollupButton.removeEventListener(`click`, this._closeEdit);
-  }
-
-  _closeOnSubmit(evt) {
-    evt.preventDefault();
-
-    this._closeEdit();
   }
 
   _closeOnKeydown(evt) {
@@ -101,7 +97,6 @@ export default class Waypoint {
   _handleEditClick() {
     this._replaceWaypointToForm();
 
-    this._editWaypointForm.addEventListener(`submit`, this._closeOnSubmit);
     document.addEventListener(`keydown`, this._closeOnKeydown);
 
     this._editWaypointComponent.setCloseClickHandler(() => {
@@ -109,7 +104,20 @@ export default class Waypoint {
     });
   }
 
+  _handleFormSubmit(waypoint) {
+    this._changeData(UserAction.UPDATE, UpdateType.MINOR, waypoint);
+
+    this._replaceFormToWaypoint();
+  }
+
   _handleFavoriteClick() {
-    this._changeData(Object.assign({}, this._waypoint, {isFavorite: !this._waypoint.isFavorite}));
+    this._changeData(
+        UserAction.UPDATE, UpdateType.MINOR,
+        Object.assign({}, this._waypoint, {isFavorite: !this._waypoint.isFavorite})
+    );
+  }
+
+  _handleDeleteClick(waypoint) {
+    this._changeData(UserAction.DELETE, UpdateType.MINOR, waypoint);
   }
 }

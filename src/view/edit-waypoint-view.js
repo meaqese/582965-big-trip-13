@@ -172,7 +172,10 @@ export default class EditWaypoint extends SmartView {
     this._datepickerFrom = null;
     this._datepickerTo = null;
 
+    this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._closeClickHandler = this._closeClickHandler.bind(this);
+    this._deleteClickHandler = this._deleteClickHandler.bind(this);
+
     this._changeTypeHandler = this._changeTypeHandler.bind(this);
     this._changeDestinationHandler = this._changeDestinationHandler.bind(this);
 
@@ -242,10 +245,29 @@ export default class EditWaypoint extends SmartView {
     this.updateData({type: evt.target.textContent.toLowerCase()});
   }
 
+  _deleteClickHandler(evt) {
+    evt.preventDefault();
+
+    this._callback.deleteClick(this._waypoint);
+  }
+  setDeleteClickHandler(callback) {
+    this._callback.deleteClick = callback;
+    this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, this._deleteClickHandler);
+  }
+
+  _formSubmitHandler(evt) {
+    evt.preventDefault();
+
+    this._callback.formSubmit(this._waypoint);
+  }
+  setFormSubmitHandler(callback) {
+    this._callback.formSubmit = callback;
+    this.getElement().querySelector(`.event--edit`).addEventListener(`submit`, this._formSubmitHandler);
+  }
+
   _closeClickHandler() {
     this._callback.close();
   }
-
   setCloseClickHandler(callback) {
     this._callback.close = callback;
     this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._closeClickHandler);
