@@ -2,53 +2,15 @@ import dayjs from "dayjs";
 import {getType} from "../utils/waypoint";
 import SmartView from "./smart-view";
 import flatpickr from "flatpickr";
+import {createEditWaypointOffersTemplate, createEditWaypointDescriptionTemplate, createEditWaypointEventTypesTemplate, createEditWaypointDestinationsTemplate} from "../utils/waypoint";
 
 import "../../node_modules/flatpickr/dist/flatpickr.min.css";
+import {generateDestinations, generateOffers} from "../mock/waypoint";
 
-const createEditWaypointOfferTemplate = (offer) => {
-  const {title, price} = offer;
-  const titleAsId = title.split(` `).join(`-`);
-  return `<div class="event__offer-selector">
-            <input class="event__offer-checkbox  visually-hidden" id="event-offer-${titleAsId}-1" type="checkbox" name="event-offer-${titleAsId}">
-            <label class="event__offer-label" for="event-offer-${titleAsId}-1">
-              <span class="event__offer-title">${title}</span>
-              &plus;&euro;&nbsp;
-              <span class="event__offer-price">${price}</span>
-            </label>
-          </div>`;
-};
 
-const createEditWaypointOffersTemplate = (offers) => {
-  const offersList = offers.map((offer) => createEditWaypointOfferTemplate(offer)).join(``);
-  return offers.length > 0 ? `<section class="event__section  event__section--offers">
-                                <h3 class="event__section-title  event__section-title--offers">Offers</h3>
-                                  <div class="event__available-offers">
-                                    ${offersList}
-                                  </div>
-                              </section>` : ``;
-};
-
-const createEditWaypointPicturesTemplate = (pictures) => {
-  const picturesTemplates = pictures.map((picture) => `<img class="event__photo" src="${picture.src}" alt="${picture.description}">`).join(``);
-  return picturesTemplates.length > 0 ? `<div class="event__photos-container">
-            <div class="event__photos-tape">
-              ${picturesTemplates}
-            </div>
-          </div>` : ``;
-};
-
-const createEditWaypointDescriptionTemplate = (destination) => {
-  const {description, pictures} = destination;
-  return `<section class="event__section  event__section--destination">
-            <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-            <p class="event__destination-description">${description}</p>
-
-            ${createEditWaypointPicturesTemplate(pictures)}
-          </section>`;
-};
-
-const createEditWaypointTemplate = (waypoint) => {
+const createEditWaypointTemplate = (waypoint, destinations, allOffers) => {
   const {type, destination, offers, price} = waypoint;
+  const typeOffers = allOffers.find((offer) => offer.type === type).offers;
   const dateFromFormat = dayjs(waypoint.dateFrom).format(`DD/MM/YY HH:mm`);
   const dateToFormat = dayjs(waypoint.dateTo).format(`DD/MM/YY HH:mm`);
 
@@ -67,55 +29,7 @@ const createEditWaypointTemplate = (waypoint) => {
                     <fieldset class="event__type-group">
                       <legend class="visually-hidden">Event type</legend>
 
-                      <div class="event__type-item">
-                        <input id="event-type-taxi-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="taxi">
-                        <label class="event__type-label  event__type-label--taxi" for="event-type-taxi-1">Taxi</label>
-                      </div>
-
-                      <div class="event__type-item">
-                        <input id="event-type-bus-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="bus">
-                        <label class="event__type-label  event__type-label--bus" for="event-type-bus-1">Bus</label>
-                      </div>
-
-                      <div class="event__type-item">
-                        <input id="event-type-train-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="train">
-                        <label class="event__type-label  event__type-label--train" for="event-type-train-1">Train</label>
-                      </div>
-
-                      <div class="event__type-item">
-                        <input id="event-type-ship-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="ship">
-                        <label class="event__type-label  event__type-label--ship" for="event-type-ship-1">Ship</label>
-                      </div>
-
-                      <div class="event__type-item">
-                        <input id="event-type-transport-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="transport">
-                        <label class="event__type-label  event__type-label--transport" for="event-type-transport-1">Transport</label>
-                      </div>
-
-                      <div class="event__type-item">
-                        <input id="event-type-drive-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="drive">
-                        <label class="event__type-label  event__type-label--drive" for="event-type-drive-1">Drive</label>
-                      </div>
-
-                      <div class="event__type-item">
-                        <input id="event-type-flight-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="flight" checked>
-                        <label class="event__type-label  event__type-label--flight" for="event-type-flight-1">Flight</label>
-                      </div>
-
-                      <div class="event__type-item">
-                        <input id="event-type-check-in-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="check-in">
-                        <label class="event__type-label  event__type-label--check-in" for="event-type-check-in-1">Check-in</label>
-                      </div>
-
-                      <div class="event__type-item">
-                        <input id="event-type-sightseeing-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="sightseeing">
-                        <label class="event__type-label  event__type-label--sightseeing" for="event-type-sightseeing-1">Sightseeing</label>
-                      </div>
-
-                      <div class="event__type-item">
-                        <input id="event-type-restaurant-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="restaurant">
-                        <label class="event__type-label  event__type-label--restaurant" for="event-type-restaurant-1">Restaurant</label>
-                      </div>
+                      ${createEditWaypointEventTypesTemplate(allOffers, waypoint.type)}
                     </fieldset>
                   </div>
                 </div>
@@ -126,9 +40,7 @@ const createEditWaypointTemplate = (waypoint) => {
                   </label>
                   <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination.name}" list="destination-list-1">
                   <datalist id="destination-list-1">
-                    <option value="Amsterdam"></option>
-                    <option value="Geneva"></option>
-                    <option value="Chamonix"></option>
+                    ${createEditWaypointDestinationsTemplate(destinations)}
                   </datalist>
                 </div>
 
@@ -155,7 +67,7 @@ const createEditWaypointTemplate = (waypoint) => {
                 </button>
               </header>
               <section class="event__details">
-                ${createEditWaypointOffersTemplate(offers)}
+                ${createEditWaypointOffersTemplate(typeOffers, offers)}
 
                 ${createEditWaypointDescriptionTemplate(destination)}
               </section>
@@ -169,6 +81,10 @@ export default class EditWaypoint extends SmartView {
     super();
 
     this._waypoint = waypoint;
+
+    this._destinations = generateDestinations();
+    this._allOffers = generateOffers();
+
     this._datepickerFrom = null;
     this._datepickerTo = null;
 
@@ -178,6 +94,8 @@ export default class EditWaypoint extends SmartView {
 
     this._changeTypeHandler = this._changeTypeHandler.bind(this);
     this._changeDestinationHandler = this._changeDestinationHandler.bind(this);
+    this._changePriceHandler = this._changePriceHandler.bind(this);
+    this._changeOfferHandler = this._changeOfferHandler.bind(this);
 
     this._dateFromChangeHandler = this._dateFromChangeHandler.bind(this);
     this._dateToChangeHandler = this._dateToChangeHandler.bind(this);
@@ -187,7 +105,7 @@ export default class EditWaypoint extends SmartView {
   }
 
   getTemplate() {
-    return createEditWaypointTemplate(this._waypoint);
+    return createEditWaypointTemplate(this._waypoint, this._destinations, this._allOffers);
   }
 
   reset(waypoint) {
@@ -224,25 +142,59 @@ export default class EditWaypoint extends SmartView {
   }
 
   _setInnerHandlers() {
-    this.getElement().querySelector(`.event__type-group`).addEventListener(`click`, this._changeTypeHandler);
+    this.getElement().querySelector(`.event__type-group`).addEventListener(`change`, this._changeTypeHandler);
     this.getElement().querySelector(`.event__input--destination`).addEventListener(`input`, this._changeDestinationHandler);
+    this.getElement().querySelector(`.event__input--price`).addEventListener(`input`, this._changePriceHandler);
+    this.getElement().querySelector(`.event__available-offers`).addEventListener(`change`, this._changeOfferHandler);
   }
 
   _restoreHandlers() {
     this._setInnerHandlers();
     this._setDatePickers();
+    this.setFormSubmitHandler(this._callback.formSubmit);
+    this.setDeleteClickHandler(this._callback.deleteClick);
     this.setCloseClickHandler(this._callback.close);
   }
 
   _changeDestinationHandler(evt) {
-    this.updateData({destination: Object.assign({}, this._waypoint.destination, {name: evt.target.value})}, true);
+    const destinationData = this._destinations.find((destination) => destination.name === evt.target.value);
+    const defaultDestination = {name: evt.target.value, description: ``, pictures: []};
+
+    if (destinationData) {
+      this.updateData({destination: destinationData});
+    } else if (defaultDestination !== this._waypoint.destination) {
+      this.updateData({destination: defaultDestination});
+    }
+    const input = this.getElement().querySelector(`.event__input--destination`);
+    input.focus();
+    input.selectionStart = input.value.length;
   }
 
   _changeTypeHandler(evt) {
-    if (evt.target.tagName !== `LABEL`) {
-      return;
+    const offersData = this._allOffers.find((offer) => offer.type === evt.target.value);
+
+    if (offersData) {
+      this.updateData({type: evt.target.value, offers: []});
     }
-    this.updateData({type: evt.target.textContent.toLowerCase()});
+  }
+
+  _changePriceHandler(evt) {
+    this.updateData({price: evt.target.value}, true);
+  }
+
+  _changeOfferHandler(evt) {
+    const typeOffers = this._allOffers.find((offer) => offer.type === this._waypoint.type).offers;
+    const offerData = typeOffers.find((typeOffer) => typeOffer.title === evt.target.name);
+    const inWaypointOffers = this._waypoint.offers.findIndex((offer) => offer.title === offerData.title);
+    const newOffers = this._waypoint.offers.slice();
+
+    if (inWaypointOffers === -1) {
+      newOffers.push(offerData);
+      this.updateData({offers: newOffers});
+    } else {
+      newOffers.splice(inWaypointOffers, 1);
+      this.updateData({offers: newOffers});
+    }
   }
 
   _deleteClickHandler(evt) {

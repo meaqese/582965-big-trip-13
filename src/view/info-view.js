@@ -14,7 +14,7 @@ const createStatsTemplate = () => {
         </section>`;
 };
 
-export default class Stats extends AbstractView {
+export default class Info extends AbstractView {
   getTemplate() {
     return createStatsTemplate();
   }
