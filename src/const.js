@@ -1,3 +1,5 @@
+export const offerTypes = [`taxi`, `bus`, `train`, `ship`, `transport`, `drive`, `flight`, `check-in`, `sightseeing`, `restaurant`];
+
 export const SortType = {
   DAY: `day`,
   PRICE: `price`,
@@ -20,4 +22,9 @@ export const FilterType = {
   EVERYTHING: `everything`,
   FUTURE: `future`,
   PAST: `past`
+};
+
+export const MenuItem = {
+  TABLE: `Table`,
+  STATS: `Stats`
 };

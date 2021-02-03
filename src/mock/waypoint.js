@@ -1,4 +1,5 @@
 import dayjs from "dayjs";
+import {offerTypes} from "../const";
 
 const getRandomInteger = (a = 0, b = 1) => {
   const lower = Math.ceil(Math.min(a, b));
@@ -7,13 +8,7 @@ const getRandomInteger = (a = 0, b = 1) => {
   return Math.floor(lower + Math.random() * (upper - lower + 1));
 };
 
-const generateType = () => {
-  const choices = [`taxi`, `bus`, `train`, `ship`, `transport`, `drive`, `flight`, `check-in`, `sightseeing`, `restaurant`];
-
-  return choices[getRandomInteger(0, choices.length - 1)];
-};
-
-const generateDestination = () => [`Quebec`, `Vancouver`, `Geneva`, `Los-Angeles`, `Georgia`][getRandomInteger(1, 4)];
+const generateType = () => offerTypes[getRandomInteger(0, offerTypes.length - 1)];
 
 const generateDescription = (min, max) => {
   const descriptions = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras aliquet varius magna,
@@ -32,48 +27,59 @@ const generatePhotos = () => {
   return generateDescription(0, 4).map((value) => ({src: `http://picsum.photos/248/152?r=${getRandomInteger(1, 100)}`, description: value}));
 };
 
-const generateOffers = () => {
-  const count = getRandomInteger(0, 5);
-  const offers = [
-    {title: `Choose meal`, price: 180},
-    {title: `Order Taxi`, price: 5},
-    {title: `Upgrade to comfort class`, price: 50},
-    {title: `Upgrade to luxe class`, price: 100},
-    {title: `Order Helicopter`, price: 150}
-  ];
-
-  return new Array(count).fill().map((value, index) => offers[index]);
+export const generateOffers = () => {
+  return offerTypes.map((choice) => {
+    return {
+      type: choice,
+      offers: [
+        {
+          title: `${choice} #1`,
+          price: 120
+        }, {
+          title: `${choice} #2`,
+          price: 60
+        }
+      ]
+    };
+  });
 };
 
 const generateFavorite = () => Boolean(getRandomInteger());
 
-const generateId = () => Date.now() + parseInt(Math.random() * 10000, 10);
+export const generateId = () => Date.now() + parseInt(Math.random() * 10000, 10);
 
 const generatePrice = () => getRandomInteger(40, 300);
 
 const generateDates = () => {
-  const dateFrom = dayjs().add(getRandomInteger(1, 30), `day`);
+  const dateFrom = dayjs().add(getRandomInteger(-30, 30), `day`);
   const dateTo = dateFrom.add(getRandomInteger(1, 4), `hour`).add(getRandomInteger(10, 59), `minute`);
 
 
   return [dateFrom.format(), dateTo.format()];
 };
 
+export const generateDestinations = () => {
+  return [`Quebec`, `Vancouver`, `Geneva`, `Los-Angeles`, `Georgia`].map((item) => {
+    return {
+      description: `${item}, is a beautiful city, a true asian pearl, with crowded streets.`,
+      name: item,
+      pictures: generatePhotos()
+    };
+  });
+};
+
 export const generateWaypoint = () => {
   const [dateFrom, dateTo] = generateDates();
+  const type = generateType();
 
   return {
     id: generateId(),
     dateFrom,
     dateTo,
-    type: generateType(),
+    type,
     price: generatePrice(),
-    destination: {
-      name: generateDestination(),
-      description: generateDescription(1, 5),
-      pictures: generatePhotos()
-    },
-    offers: generateOffers(),
+    destination: generateDestinations()[getRandomInteger(0, 4)],
+    offers: [generateOffers().find((offer) => offer.type === type).offers[0]],
     isFavorite: generateFavorite()
   };
 };
